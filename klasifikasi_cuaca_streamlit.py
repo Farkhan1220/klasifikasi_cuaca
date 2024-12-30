@@ -1,69 +1,86 @@
 import streamlit as st
 import pandas as pd
-from sklearn.svm import SVR
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.ensemble import RandomForestClassifier
 
 # Streamlit App Title
-st.title("Weather Classification Analysis")
+st.title("Klasifikasi Cuaca")
 
-# Load the dataset
-data = pd.read_csv("klasifikasi_cuaca.csv")
-
-# Sidebar
-st.sidebar.header("Settings")
-
-def main():
-    # Exploratory Data Analysis (EDA)
-    st.subheader("Dataset Information")
-    st.write(data.head())
-    st.write("--- Dataset Info ---")
-    st.text(data.info())
-    st.write("--- Descriptive Statistics ---")
+# File Upload
+uploaded_file = st.file_uploader("Unggah file dataset (CSV)", type=["csv"])
+if uploaded_file is not None:
+    data = pd.read_csv(uploaded_file)
+    
+    # Dataset Overview
+    st.subheader("Dataset Overview")
+    st.write("### Informasi Dataset")
+    st.write(data.info())
+    st.write("### Statistik Deskriptif")
     st.write(data.describe())
-
-    # Distribution Analysis
-    st.subheader("Distribution Analysis")
+    
+    # Data Visualization
+    st.subheader("Visualisasi Data")
     numerical_features = ['Suhu (°C)', 'Kelembapan (%)', 'Kecepatan Angin (km/jam)']
-    for col in numerical_features:
-        st.write(f"Distribution of {col}")
-        fig, ax = plt.subplots()
-        sns.histplot(data[col], kde=True, bins=10, ax=ax)
+    
+    if all(col in data.columns for col in numerical_features):
+        # Histogram for numerical features
+        for col in numerical_features:
+            st.write(f"#### Distribusi {col}")
+            fig, ax = plt.subplots()
+            sns.histplot(data[col], kde=True, bins=10, color='blue', ax=ax)
+            st.pyplot(fig)
+
+        # Correlation Matrix
+        st.write("#### Matriks Korelasi")
+        fig, ax = plt.subplots(figsize=(8, 6))
+        correlation_matrix = data[numerical_features].corr()
+        sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', fmt='.2f', ax=ax)
         st.pyplot(fig)
+    else:
+        st.warning("Kolom yang dibutuhkan untuk visualisasi tidak ditemukan di dataset.")
+    
+    # Preprocessing
+    st.subheader("Preprocessing")
+    label_col = st.selectbox("Pilih kolom label", options=data.columns)
+    if label_col:
+        le = LabelEncoder()
+        data[label_col] = le.fit_transform(data[label_col])
+        st.write("### Label Encoding untuk kolom:", label_col)
+        st.write(dict(zip(le.classes_, range(len(le.classes_)))))
 
-    # Encoding and Preprocessing
-    st.subheader("Encoding and Preprocessing")
-    label_encoder = LabelEncoder()
-    data['Jenis Cuaca Encoded'] = label_encoder.fit_transform(data['Jenis Cuaca'])
-    st.write("Encoded Weather Type:")
-    st.write(data[['Jenis Cuaca', 'Jenis Cuaca Encoded']])
+        # Feature Selection
+        features = [col for col in data.columns if col != label_col]
+        X = data[features]
+        y = data[label_col]
 
-    # Feature Scaling
-    scaler = StandardScaler()
-    scaled_features = scaler.fit_transform(data[numerical_features])
-    st.write("Scaled Numerical Features:")
-    st.write(pd.DataFrame(scaled_features, columns=numerical_features))
+        # Splitting Dataset
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Splitting and Modeling
-    st.subheader("Modeling and Evaluation")
-    X = pd.DataFrame(scaled_features, columns=numerical_features)
-    y = data['Jenis Cuaca Encoded']
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        # Scaling
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.transform(X_test)
 
-    model = RandomForestClassifier(random_state=42)
-    model.fit(X_train, y_train)
-    predictions = model.predict(X_test)
+        # Model Training
+        st.subheader("Model Training")
+        model = RandomForestClassifier(random_state=42)
+        model.fit(X_train, y_train)
+        
+        # Model Evaluation
+        st.subheader("Evaluasi Model")
+        y_pred = model.predict(X_test)
+        st.write("### Classification Report")
+        st.text(classification_report(y_test, y_pred))
 
-    st.write("--- Classification Report ---")
-    report = classification_report(y_test, predictions, target_names=label_encoder.classes_, output_dict=True)
-    st.write(pd.DataFrame(report).transpose())
-
-    st.write("--- Confusion Matrix ---")
-    conf_matrix = confusion_matrix(y_test, predictions)
-    fig, ax = plt.subplots()
-    sns.heatmap(conf_matrix, annot=True, cmap="Blues", xticklabels=label_encoder.classes_, yticklabels=label_encoder.classes_, ax=ax)
-    st.pyplot(fig)
-
-if __name__ == "__main__":
-    main()
+        st.write("### Confusion Matrix")
+        fig, ax = plt.subplots()
+        cm = confusion_matrix(y_test, y_pred)
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=le.classes_, yticklabels=le.classes_, ax=ax)
+        plt.xlabel('Predicted')
+        plt.ylabel('Actual')
+        st.pyplot(fig)
