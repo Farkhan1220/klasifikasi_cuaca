@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
-from sklearn.preprocessing 
-from sklearn.metrics 
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVR
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import RandomForestClassifier
 
 # Streamlit App Title
 st.title("Weather Classification Analysis")
