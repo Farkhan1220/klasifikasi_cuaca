@@ -1,10 +1,11 @@
 import pandas as pd
 
 # File Upload
-uploaded_file = st.sidebar.file_uploader("Upload dataset (CSV format)", type="csv")
 if uploaded_file is not None:
-    data = pd.read_csv(uploaded_file)
-    st.success("File successfully loaded!")
+    import pandas as pd
+    df = pd.read_csv("klasifikasi_cuaca.csv")
+    st.write(df)
+
 
     # Dataset Information
     st.subheader("Dataset Information")
