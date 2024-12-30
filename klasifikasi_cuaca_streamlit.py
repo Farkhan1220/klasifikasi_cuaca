@@ -2,7 +2,7 @@ import pandas as pd
 
 # File Upload
 
-    import pandas as pd
+  
     df = pd.read_csv("klasifikasi_cuaca.csv")
     st.write(df)
 
