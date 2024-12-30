@@ -1,8 +1,5 @@
 import pandas as pd
 
-# Streamlit App Title
-st.title("Weather Classification Analysis")
-
 # Sidebar for settings
 st.sidebar.header("Settings")
 
