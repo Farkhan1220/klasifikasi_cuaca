@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.preprocessing 
+from sklearn.metrics 
 from sklearn.ensemble import RandomForestClassifier
 
 # Streamlit App Title
