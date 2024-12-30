@@ -31,4 +31,3 @@ def main():
         st.write(f"Distribution of {col}")
         sns.histplot(data[col], kde=True, bins=10)
     elif criteria: 
-render response pass Generate partial data with change of "add encoding....fine
