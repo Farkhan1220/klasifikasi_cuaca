@@ -1,9 +1,4 @@
 import pandas as pd
-import numpy as np
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.metrics import classification_report, confusion_matrix
-from sklearn.ensemble import RandomForestClassifier
-
 
 # Streamlit App Title
 st.title("Weather Classification Analysis")
