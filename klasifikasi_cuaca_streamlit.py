@@ -1,3 +1,6 @@
+pip install matplotlib seaborn pandas numpy scikit-learn streamlit
+.\\venv\\Scripts\\activate
+source ./venv/bin/activate
 import streamlit as st
 import pandas as pd
 import numpy as np
