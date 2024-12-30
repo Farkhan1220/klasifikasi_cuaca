@@ -1,8 +1,5 @@
 import pandas as pd
 
-# Sidebar for settings
-st.sidebar.header("Settings")
-
 # File Upload
 uploaded_file = st.sidebar.file_uploader("Upload dataset (CSV format)", type="csv")
 if uploaded_file is not None:
